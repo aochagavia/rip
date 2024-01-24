@@ -14,7 +14,8 @@ use miette::IntoDiagnostic;
 use pep440_rs::{Operator, Version, VersionSpecifier, VersionSpecifiers};
 use pep508_rs::{MarkerEnvironment, Requirement, VersionOrUrl};
 use resolvo::{
-    Candidates, Dependencies, DependencyProvider, NameId, Pool, SolvableId, SolverCache, VersionSet,
+    Candidates, Dependencies, DependencyProvider, KnownDependencies, NameId, Pool, SolvableId,
+    SolverCache, VersionSet,
 };
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -430,7 +431,7 @@ impl<'p> DependencyProvider<PypiVersionSet, PypiPackageName>
             package_version
         );
 
-        let mut dependencies = Dependencies::default();
+        let mut dependencies = KnownDependencies::default();
 
         // Add a dependency to the base dependency when we have an extra
         // So that we have a connection to the base package
@@ -460,7 +461,7 @@ impl<'p> DependencyProvider<PypiVersionSet, PypiPackageName>
 
         // If there are no artifacts we can stop here
         if artifacts.is_empty() {
-            return dependencies;
+            return Dependencies::Known(dependencies);
         }
 
         let Some((_, metadata)) = task::block_in_place(|| {
@@ -472,10 +473,9 @@ impl<'p> DependencyProvider<PypiVersionSet, PypiPackageName>
                 )
                 .unwrap()
         }) else {
-            panic!(
-                "could not find metadata for any sdist or wheel for {} {}. No metadata could be extracted for the following available artifacts:\n{}",
-                package_name, package_version, artifacts.iter().format_with("\n", |a, f| f(&format_args!("\t- {}", a.filename)))
-            );
+            let error = self.pool.intern_string(format!("could not find metadata for any sdist or wheel for this package. No metadata could be extracted for the following available artifacts:\n{}",
+                                            artifacts.iter().format_with("\n", |a, f| f(&format_args!("\t- {}", a.filename)))));
+            return Dependencies::Unknown(error);
         };
 
         // Add constraints that restrict that the extra packages are set to the same version.
@@ -542,6 +542,6 @@ impl<'p> DependencyProvider<PypiVersionSet, PypiPackageName>
             }
         }
 
-        dependencies
+        Dependencies::Known(dependencies)
     }
 }

@@ -2243,8 +2243,7 @@ dependencies = [
 [[package]]
 name = "resolvo"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "554db165775d6858d17a9626c327b796d81db95db0a4cd6ca0efdfb7e7e3a264"
+source = "git+https://github.com/aochagavia/resolvo.git?branch=tweak-dependency-provider#66fb74d1ba7595c983497b58e3bfee2489583005"
 dependencies = [
  "bitvec",
  "elsa",

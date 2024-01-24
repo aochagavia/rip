@@ -56,7 +56,9 @@ tokio-util = { version = "0.7.9", features = ["compat"] }
 tracing = { version = "0.1.37", default-features = false, features = ["attributes"] }
 url = { version = "2.4.1", features = ["serde"] }
 zip = "0.6.6"
-resolvo = { version = "0.2.0", default-features = false }
+#resolvo = { version = "0.2.0", default-features = false }
+resolvo = { git="https://github.com/aochagavia/resolvo.git", branch="tweak-dependency-provider", default-features = false }
+# resolvo = { path="../../../resolvo", default-features = false }
 pathdiff = "0.2.1"
 async_http_range_reader = "0.3.0"
 async_zip = { version = "0.0.15", features = ["tokio", "deflate"] }
